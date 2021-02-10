@@ -9,6 +9,9 @@ export default function Home() {
 
   return (
     <UserContext.Provider value={{ userContext, setUserContext }}>
+      <Head>
+        <title>Web Mark</title>
+      </Head>
       <App />
     </UserContext.Provider>
   );

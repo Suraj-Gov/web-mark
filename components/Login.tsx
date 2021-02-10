@@ -49,21 +49,11 @@ export default function Login() {
       });
   };
 
-  const signOut = () => {
-    firebase
-      .auth()
-      .signOut()
-      .catch((error) => alert(error.message));
-  };
-
   return (
-    <div>
-      {!userContext.uid ? (
+    <>
+      {!userContext.uid && (
         <button onClick={signIn}>Sign in with Google</button>
-      ) : (
-        <button onClick={signOut}>Sign out</button>
       )}
-      <div>{JSON.stringify(userContext)}</div>
-    </div>
+    </>
   );
 }
