@@ -13,7 +13,7 @@ export default function Login() {
   const findOrCreateUser = async (user) => {
     const users = db.collection("users");
     const findUser = await users.where("uid", "==", user.uid).get();
-    console.log(findUser.docs[0].data(), "found user");
+    console.log("found user");
     if (findUser.docs.length === 0) {
       const newUser = await users.add({
         displayName: user.displayName,
@@ -21,6 +21,7 @@ export default function Login() {
         photoURL: user.photoURL,
         uid: user.uid,
       });
+      console.log("created user");
     }
     setUserContext({
       displayName: user.displayName,
@@ -30,20 +31,13 @@ export default function Login() {
     });
   };
 
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        findOrCreateUser(user);
-      } else {
-        setUserContext(defaultUser);
-      }
-    });
-  }, []);
-
   const signIn = () => {
     firebase
       .auth()
       .signInWithPopup(provider)
+      .then((res) => {
+        findOrCreateUser(res.user);
+      })
       .catch((error) => {
         alert(error.message);
       });

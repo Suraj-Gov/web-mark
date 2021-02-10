@@ -1,7 +1,9 @@
 import { createContext } from "react";
 import { Dispatch, SetStateAction } from "react";
+import firebase from "../constants/firebase";
+import "firebase/auth";
 
-type UserContextType = {
+export type UserContextType = {
   uid: string;
   email: string;
   displayName: string;
