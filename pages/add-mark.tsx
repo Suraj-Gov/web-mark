@@ -1,4 +1,5 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import Tags from "../components/Tags";
 import UserContext from "../contexts/UserContext";
 
 export default function add_mark() {
@@ -9,7 +10,9 @@ export default function add_mark() {
       {userContext.uid === "" ? (
         <h1>You need to be logged in</h1>
       ) : (
-        <h1>You're logged in</h1>
+        <div>
+          <Tags />
+        </div>
       )}
     </>
   );
