@@ -80,6 +80,7 @@ const Tags = () => {
       }
       // else, add a new tag
       setTags((prev) => (prev.length < MAX_TAGS ? prev.concat([""]) : prev));
+      return;
     }
     // if spacebar is not pressed, some other button is pressed (ascii only)
     setTags((prev) => prev.map((p, ip) => (ip === idx ? e.target.value : p)));
