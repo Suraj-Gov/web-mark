@@ -40,16 +40,17 @@ type Props = {
   text: string;
   handleChange: any;
   focused: boolean;
+  handleKeyDown: any;
 };
 
-const Tag = ({ focused, text, handleChange }: Props) => {
+const Tag = ({ handleKeyDown, focused, text, handleChange }: Props) => {
   const tagRef = useRef();
 
   useEffect(() => {
     // this is showing that tagRef could be null
     // @ts-ignore
     focused && tagRef.current.focus();
-  }, []);
+  }, [focused]);
 
   return (
     <ContainerSpan className="input-wrap">
@@ -58,6 +59,7 @@ const Tag = ({ focused, text, handleChange }: Props) => {
       </WidthSpan>
       <Input
         type="text"
+        onKeyDown={(e) => handleKeyDown(e)}
         value={text}
         placeholder="Add Tag"
         onChange={(e) => handleChange(e)}
@@ -72,6 +74,7 @@ const Tags = () => {
   const [tags, setTags] = useState([""]);
 
   const handleTagChange = (e: ChangeEvent<HTMLInputElement>, idx: number) => {
+    // console.log(e);
     if (e.target.value.slice(-1) === " ") {
       if (
         (tags.length === idx + 1 && e.target.value.length === 1) ||
@@ -84,16 +87,13 @@ const Tags = () => {
     setTags((prev) => prev.map((p, ip) => (ip === idx ? e.target.value : p)));
   };
 
-  const handleBackspace = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent, idx: number) => {
     if (e.code === "Backspace") {
-      console.log(tags);
+      if (idx !== 0 && tags[idx].length === 0) {
+        setTags((prev) => prev.slice(0, -1));
+      }
     }
   };
-
-  useEffect(() => {
-    window.addEventListener("keydown", (e) => handleBackspace(e));
-    return () => window.removeEventListener("keydown", handleBackspace);
-  }, []);
 
   return (
     <>
@@ -103,6 +103,7 @@ const Tags = () => {
           key={idx}
           text={i}
           handleChange={(e) => handleTagChange(e, idx)}
+          handleKeyDown={(e) => handleKeyDown(e, idx)}
         />
       ))}
     </>
