@@ -87,7 +87,7 @@ const Tags = () => {
   };
 
   const handleKeyDown = (e: KeyboardEvent, idx: number) => {
-    if (e.code === "Backspace") {
+    if (e.code === "Backspace" || e.code === "Delete") {
       // if it is not the first tag and the tag length is 0
       if (idx !== 0 && tags[idx].length === 0) {
         // remove the tag

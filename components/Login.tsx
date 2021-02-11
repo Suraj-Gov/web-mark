@@ -10,6 +10,14 @@ const db = firebase.firestore();
 export default function Login() {
   const { userContext, setUserContext } = useContext(UserContext);
 
+  useEffect(() => {
+    firebase
+      .auth()
+      .getRedirectResult()
+      .then((res) => res.user !== null && findOrCreateUser(res.user))
+      .catch((error) => alert(error.message));
+  }, []);
+
   const findOrCreateUser = async (user) => {
     const users = db.collection("users");
     const findUser = await users.where("uid", "==", user.uid).get();
@@ -32,15 +40,7 @@ export default function Login() {
   };
 
   const signIn = () => {
-    firebase
-      .auth()
-      .signInWithPopup(provider)
-      .then((res) => {
-        findOrCreateUser(res.user);
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
+    firebase.auth().signInWithRedirect(provider);
   };
 
   return (
