@@ -1,14 +1,17 @@
 // https://css-tricks.com/auto-growing-inputs-textareas/
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import TagsContext from "../contexts/TagsContext";
 
 const ContainerSpan = styled.span`
   position: relative;
   padding: 0.5rem 1rem;
   display: inline-block;
-  margin: 1rem;
-  margin-bottom: 0;
+  margin: 0.5rem;
+  margin-left: 0;
+  margin-right: 1rem;
+  min-height: 1.3rem;
   min-width: 8rem;
 `;
 
@@ -21,7 +24,7 @@ const Input = styled.input`
   outline: none;
   border: none;
   background: #d7d7d7;
-  border-radius: 50px;
+  border-radius: 10px;
   font-size: 1.3rem;
   position: absolute;
   min-width: 8rem;
@@ -30,14 +33,23 @@ const Input = styled.input`
   left: 0;
 `;
 
-type Props = {
+const TagContainer = styled.div`
+  @media only screen and (max-width: 800px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
+type TagProp = {
   text: string;
   handleChange: any;
   focused: boolean;
   handleKeyDown: any;
 };
 
-const Tag = ({ handleKeyDown, focused, text, handleChange }: Props) => {
+const Tag = ({ handleKeyDown, focused, text, handleChange }: TagProp) => {
   const tagRef = useRef();
 
   useEffect(() => {
@@ -65,8 +77,13 @@ const Tag = ({ handleKeyDown, focused, text, handleChange }: Props) => {
 };
 
 const Tags = () => {
+  const { setTagsContext } = useContext(TagsContext);
   const MAX_TAGS = 5;
   const [tags, setTags] = useState([""]);
+
+  useEffect(() => {
+    setTagsContext(tags);
+  }, [tags]);
 
   const handleTagChange = (e: ChangeEvent<HTMLInputElement>, idx: number) => {
     // if the spacebar is pressed
@@ -92,6 +109,7 @@ const Tags = () => {
               .split("")
               .filter((i) => i !== " ")
               .join("")
+              .slice(0, 16)
           : p
       )
     );
@@ -114,7 +132,7 @@ const Tags = () => {
   };
 
   return (
-    <>
+    <TagContainer>
       {tags.map((i, idx, arr) => (
         <Tag
           // this just sees if the tag being rendered is the last one or not, if it's the last one, focus it
@@ -127,7 +145,7 @@ const Tags = () => {
           handleKeyDown={(e) => handleKeyDown(e, idx)}
         />
       ))}
-    </>
+    </TagContainer>
   );
 };
 

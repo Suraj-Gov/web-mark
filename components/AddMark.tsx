@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Button from "./Button";
 export default function AddMark() {
   return (
-    <button>
+    <Button>
       <Link href="/add-mark">
-        <a>Add</a>
+        <a>New</a>
       </Link>
-    </button>
+    </Button>
   );
 }

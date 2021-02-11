@@ -3,6 +3,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import UserContext, { defaultUser } from "../contexts/UserContext";
 import { useContext, useEffect, useState } from "react";
+import Button from "./Button";
 
 const provider = new firebase.auth.GoogleAuthProvider();
 const db = firebase.firestore();
@@ -46,7 +47,7 @@ export default function Login() {
   return (
     <>
       {!userContext.uid && (
-        <button onClick={signIn}>Sign in with Google</button>
+        <Button buttonText={"Login"} onClickHandler={signIn} />
       )}
     </>
   );

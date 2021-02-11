@@ -1,9 +1,9 @@
 import "../styles/globals.css";
 import UserContext, { defaultUser } from "../contexts/UserContext";
+import TagsContext from "../contexts/TagsContext";
 import { useEffect, useState } from "react";
 import NProgress from "nprogress";
 import Router from "next/router";
-import firebase from "../constants/firebase";
 import "firebase/auth";
 import checkLoggedInUser from "../functions/checkLoggedInUser";
 
@@ -20,6 +20,7 @@ Router.events.on("routeChangeError", () => NProgress.done());
 
 function MyApp({ Component, pageProps }) {
   const [userContext, setUserContext] = useState(defaultUser);
+  const [tagsContext, setTagsContext] = useState([""]);
 
   useEffect(() => {
     checkLoggedInUser(setUserContext);
@@ -27,7 +28,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <UserContext.Provider value={{ userContext, setUserContext }}>
-      <Component {...pageProps} />
+      <TagsContext.Provider value={{ tagsContext, setTagsContext }}>
+        <Component {...pageProps} />
+      </TagsContext.Provider>
     </UserContext.Provider>
   );
 }
