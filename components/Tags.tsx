@@ -91,7 +91,14 @@ const Tags = () => {
       // if it is not the first tag and the tag length is 0
       if (idx !== 0 && tags[idx].length === 0) {
         // remove the tag
-        setTags((prev) => prev.slice(0, -1));
+        setTags((prev) => {
+          return prev.filter((p, pidx) => {
+            if (p === "" && pidx === idx) {
+              return false;
+            }
+            return true;
+          });
+        });
       }
     }
   };
