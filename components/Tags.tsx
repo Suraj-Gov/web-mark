@@ -8,6 +8,7 @@ const ContainerSpan = styled.span`
   padding: 0.5rem 1rem;
   display: inline-block;
   margin: 1rem;
+  margin-bottom: 0;
   min-width: 8rem;
 `;
 
@@ -83,7 +84,17 @@ const Tags = () => {
       return;
     }
     // if spacebar is not pressed, some other button is pressed (ascii only)
-    setTags((prev) => prev.map((p, ip) => (ip === idx ? e.target.value : p)));
+    setTags((prev) =>
+      prev.map((p, ip) =>
+        ip === idx
+          ? // filter out space in the word
+            e.target.value
+              .split("")
+              .filter((i) => i !== " ")
+              .join("")
+          : p
+      )
+    );
   };
 
   const handleKeyDown = (e: KeyboardEvent, idx: number) => {
@@ -93,10 +104,9 @@ const Tags = () => {
         // remove the tag
         setTags((prev) => {
           return prev.filter((p, pidx) => {
-            if (p === "" && pidx === idx) {
-              return false;
-            }
-            return true;
+            // if the tag is empty and it's the idx where the event was invoked, return false
+            // which basically means don't include that tag ^
+            return !(p === "" && pidx === idx);
           });
         });
       }
