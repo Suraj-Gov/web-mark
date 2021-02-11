@@ -78,6 +78,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           }
         );
         if (imageURL !== "" || color) {
+          fs.unlink(pathForImage + "/" + filename, () => {});
           const result = {
             status: "success",
             pageTitle,
@@ -87,7 +88,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           };
           res.send(result);
           //delete the image
-          fs.unlink(pathForImage + "/" + filename, () => {});
         }
       } else {
         res.status(401).send("UNAUTHORIZED");
