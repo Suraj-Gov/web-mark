@@ -24,15 +24,18 @@ cloudinary.v2.config({
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    const browser = await puppeteer.launch(
-      process.env.NODE_ENV === "production" && {
+    let browser;
+    if (process.env.NODE_ENV === "production") {
+      browser = await chromium.puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath,
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
-      }
-    );
+      });
+    } else {
+      browser = await puppeteer.launch();
+    }
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
       const existingUser = await db
