@@ -10,6 +10,9 @@ if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
 } else {
   puppeteer = require("puppeteer");
 }
+console.log(process.env.AWS_LAMBDA_FUNCTION_VERSION, "AWS_VERSION");
+// @ts-ignore
+console.log(chrome.args, "CHROME ARGS");
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
@@ -29,9 +32,10 @@ cloudinary.v2.config({
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
+    // @ts-ignore
     const browser = await puppeteer.launch({
       // @ts-ignore
-      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+      args: ["--hide-scrollbars", "--disable-web-security"],
       // @ts-ignore
       defaultViewport: chrome.defaultViewport,
       // @ts-ignore
