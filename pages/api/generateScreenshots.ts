@@ -1,23 +1,17 @@
 // https://firebase.google.com/docs/firestore/quickstart#node.js
 // https://github.com/vercel/vercel/discussions/4903
-let chrome = {};
-let puppeteer;
+// https://github.com/vercel/pkg/issues/204
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-  chrome = require("chrome-aws-lambda");
-  puppeteer = require("puppeteer-core");
-} else {
-  puppeteer = require("puppeteer");
-}
-console.log(process.env.AWS_LAMBDA_FUNCTION_VERSION, "AWS_VERSION");
-// @ts-ignore
-console.log(chrome.args, "CHROME ARGS");
+import puppeteer from "puppeteer";
+import os from "os";
+import download from "download-chromium";
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
 import cloudinary from "cloudinary";
 import Vibrant from "node-vibrant";
+const tempDir = os.tmpdir();
 admin.apps.length === 0 &&
   admin.initializeApp({
     // @ts-ignore
@@ -31,18 +25,22 @@ cloudinary.v2.config({
 });
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
+    let execPath = "";
+    if (process.env.NODE_ENV === "production") {
+      execPath = await download({
+        revision: 694644,
+        installPath: `${tempDir}/.local-chromium`,
+      });
+    }
     // sudo apt-get install libnss3-dev
-    // @ts-ignore
-    const browser = await puppeteer.launch({
-      // @ts-ignore
-      args: ["--hide-scrollbars", "--disable-web-security"],
-      // @ts-ignore
-      defaultViewport: chrome.defaultViewport,
-      // @ts-ignore
-      executablePath: await chrome.executablePath,
-      headless: true,
-      ignoreHTTPSErrors: true,
-    });
+    const browser = await puppeteer.launch(
+      execPath !== "" && {
+        args: ["--hide-scrollbars", "--disable-web-security"],
+        executablePath: execPath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+      }
+    );
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
       const existingUser = await db
