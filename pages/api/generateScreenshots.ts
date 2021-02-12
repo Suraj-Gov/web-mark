@@ -9,7 +9,7 @@ import fs from "fs";
 import config from "../../constants/firebaseService";
 import cloudinary from "cloudinary";
 import Vibrant from "node-vibrant";
-import axios from "axios";
+const fetch = require("node-fetch");
 admin.apps.length === 0 &&
   admin.initializeApp({
     // @ts-ignore
@@ -32,14 +32,18 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         .get();
       // check for existing user
       if (!existingUser.empty) {
-        const { data } = await axios.post(
+        const body = req.body;
+        const response = await fetch(
           process.env.NODE_ENV === "production"
-            ? "https://web-mark.vercel.app/api/saveScreenshots"
-            : "http://localhost:3000/api/saveScreenshots",
+            ? "https://web-mark.vercel.app/api/makeScreenshots"
+            : "http://localhost:3000/api/makeScreenshots",
           {
-            pageUrl,
+            method: "post",
+            body: JSON.stringify(body),
+            headers: { "Content-Type": "application/json" },
           }
         );
+        const data = await response.json();
         let color;
         const { imgPath, pageTitle } = data;
         // detect vibrant light color
