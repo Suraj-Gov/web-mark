@@ -65,7 +65,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         await cloudinary.v2.uploader.upload(
           pathForImage + "/" + filename,
           {
-            folder: "web-mark-test/",
+            folder:
+              process.env.NODE_ENV === "production"
+                ? "web-mark-prod"
+                : "web-mark-test/",
             public_id: filename,
             overwrite: true,
           },
