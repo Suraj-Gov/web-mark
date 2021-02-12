@@ -1,7 +1,15 @@
 // https://firebase.google.com/docs/firestore/quickstart#node.js
+// https://github.com/vercel/vercel/discussions/4903
+let chrome = {};
+let puppeteer;
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-import puppeteer from "puppeteer";
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+  chrome = require("chrome-aws-lambda");
+  puppeteer = require("puppeteer-core");
+} else {
+  puppeteer = require("puppeteer");
+}
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
@@ -21,7 +29,16 @@ cloudinary.v2.config({
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      // @ts-ignore
+      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+      // @ts-ignore
+      defaultViewport: chrome.defaultViewport,
+      // @ts-ignore
+      executablePath: await chrome.executablePath,
+      headless: true,
+      ignoreHTTPSErrors: true,
+    });
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
       const existingUser = await db
