@@ -3,8 +3,6 @@ import "firebase/database";
 import { useContext, useEffect, useState } from "react";
 import UserContext from "../contexts/UserContext";
 import styled from "styled-components";
-import Image from "next/image";
-import Router from "next/router";
 const db = firebase.firestore();
 
 const StateIndicator = styled.h3`
@@ -26,14 +24,19 @@ const WebMarksContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 2rem;
+
   @media only screen and (max-width: 800px) {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+  @media only screen and (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
   & img {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+    width: 100%;
   }
 `;
 
@@ -107,13 +110,7 @@ const WebMarks: React.FC = () => {
       {webMarks.reverse().map((i, idx) => (
         <WebMarkContainer bgColor={i.data().color} key={idx}>
           <a href={i.data().url}>
-            <Image
-              src={i.data().imageUrl}
-              alt={i.data().pageTitle}
-              width={400}
-              height={300}
-              layout="responsive"
-            />
+            <img src={i.data().imageUrl} alt={i.data().pageTitle} />
           </a>
           <button onClick={() => deleteMark(i.id)} className="delete-svg">
             <DeleteSvg fillColor={getColor(i.data().color)} />
