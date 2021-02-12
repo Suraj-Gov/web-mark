@@ -3,12 +3,12 @@
 // https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-on-aws-lambda
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-const playwright = require("playwright-aws-lambda");
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
 import cloudinary from "cloudinary";
 import Vibrant from "node-vibrant";
+import axios from "axios";
 admin.apps.length === 0 &&
   admin.initializeApp({
     // @ts-ignore
@@ -23,8 +23,6 @@ cloudinary.v2.config({
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    const browser = await playwright.launchChromium({ headless: true });
-    const context = await browser.newContext();
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
       const existingUser = await db
@@ -33,48 +31,31 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         .get();
       // check for existing user
       if (!existingUser.empty) {
-        // if there is an existing user, go ahead
-        const page = await context.newPage();
-        try {
-          await page.goto(pageUrl);
-        } catch (err) {
-          // if there is an error in going to the page, error out
-          console.log(err.message);
-          res.status(403).send("ERROR");
-          return;
-          // } finally {
-          //   if (browser !== null) {
-          //     await browser.close();
-          //   }
-        }
-        const filename = userId.concat(Math.random().toString()) + ".jpg";
-        const pathForImage = process.cwd() + "/screenshots";
-        !fs.existsSync(pathForImage) && fs.mkdirSync(pathForImage);
-        // if the path for images dont exist, make one
-        const pageTitle = await page.title();
-        // take screenshot
-        await page.screenshot({
-          path: `${pathForImage + "/" + filename}`,
-          quality: 50,
-          type: "jpeg",
-        });
-        let color;
-        // detect vibrant light color
-        Vibrant.from(pathForImage + "/" + filename).getPalette(
-          (error, palette) => {
-            color = palette.LightVibrant;
+        const { data } = await axios.post(
+          process.env.NODE_ENV === "production"
+            ? "https://web-mark.netlify.app/api/makeScreenshots"
+            : "http://localhost:3000/api/makeScreenshots",
+          {
+            userId,
+            pageUrl,
           }
         );
+        console.log(data);
+        let color;
+        // detect vibrant light color
+        Vibrant.from(data.imagePath).getPalette((error, palette) => {
+          color = palette.LightVibrant;
+        });
         let imageURL = "";
         // upload the image to cloudinary
         await cloudinary.v2.uploader.upload(
-          pathForImage + "/" + filename,
+          data.imagePath,
           {
             folder:
               process.env.NODE_ENV === "production"
                 ? "web-mark-prod"
                 : "web-mark-test/",
-            public_id: filename,
+            public_id: data.imagePath.slice(-30),
             overwrite: true,
           },
           (error, result) => {
@@ -86,10 +67,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           }
         );
         if (imageURL !== "" || color) {
-          fs.unlink(pathForImage + "/" + filename, () => {});
+          fs.unlink(data.imagePath, () => {});
           const result = {
             status: "success",
-            pageTitle,
+            pageTitle: data.pageTitle,
             imageURL,
             color,
             url: pageUrl,
