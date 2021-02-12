@@ -3,7 +3,7 @@
 // https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-on-aws-lambda
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-import chromium from "chrome-aws-lambda";
+import playwright from "playwright-aws-lambda";
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
@@ -21,15 +21,11 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 export default async function (req: NextApiRequest, res: NextApiResponse) {
+  let browser = null;
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    const browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
+    browser = await playwright.launchChromium({ headless: true });
+    const context = await browser.newContext();
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
       const existingUser = await db
@@ -39,11 +35,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       // check for existing user
       if (!existingUser.empty) {
         // if there is an existing user, go ahead
-        const page = await browser.newPage();
+        const page = await context.newPage();
         try {
-          await page.goto(pageUrl, {
-            waitUntil: "networkidle2",
-          });
+          await page.goto(pageUrl);
         } catch (err) {
           // if there is an error in going to the page, error out
           console.log(err.message);
