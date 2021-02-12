@@ -1,8 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-const puppeteer =
-  process.env.NODE_ENV === "production"
-    ? require("puppeteer-core")
-    : require("puppeteer");
+const puppeteer = require("puppeteer-core");
 const chrome = require("chrome-aws-lambda");
 const fs = require("fs");
 
