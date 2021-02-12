@@ -33,14 +33,13 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       if (!existingUser.empty) {
         const { data } = await axios.post(
           process.env.NODE_ENV === "production"
-            ? "https://web-mark.netlify.app/api/makeScreenshots"
+            ? "https://web-mark.vercel.app/api/makeScreenshots"
             : "http://localhost:3000/api/makeScreenshots",
           {
             userId,
             pageUrl,
           }
         );
-        console.log(data);
         let color;
         // detect vibrant light color
         Vibrant.from(data.imagePath).getPalette((error, palette) => {
