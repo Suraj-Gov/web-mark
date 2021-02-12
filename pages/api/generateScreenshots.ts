@@ -3,7 +3,7 @@
 // https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-on-aws-lambda
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-import playwright from "playwright-aws-lambda";
+const playwright = require("playwright-aws-lambda");
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
@@ -21,10 +21,9 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 export default async function (req: NextApiRequest, res: NextApiResponse) {
-  let browser = null;
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    browser = await playwright.launchChromium({ headless: true });
+    const browser = await playwright.launchChromium({ headless: true });
     const context = await browser.newContext();
     let { pageUrl, userId } = req.body;
     if (pageUrl && userId) {
@@ -43,10 +42,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           console.log(err.message);
           res.status(403).send("ERROR");
           return;
-        } finally {
-          if (browser !== null) {
-            await browser.close();
-          }
+          // } finally {
+          //   if (browser !== null) {
+          //     await browser.close();
+          //   }
         }
         const filename = userId.concat(Math.random().toString()) + ".jpg";
         const pathForImage = process.cwd() + "/screenshots";

@@ -111,7 +111,7 @@ const WebMarks: React.FC = () => {
               src={i.data().imageUrl}
               alt={i.data().pageTitle}
               width={400}
-              height={300}
+              height={230}
               layout="responsive"
             />
           </a>

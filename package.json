@@ -17,7 +17,7 @@
     "node-vibrant": "^3.2.1-alpha.1",
     "nprogress": "^0.2.0",
     "playwright-aws-lambda": "^0.6.0",
-    "playwright-core": "^1.8.1",
+    "playwright-core": "npm:playwright-chromium@1.2.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "styled-components": "^5.2.1"
