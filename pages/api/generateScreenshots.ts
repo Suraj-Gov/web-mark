@@ -1,17 +1,15 @@
 // https://firebase.google.com/docs/firestore/quickstart#node.js
-// https://github.com/vercel/vercel/discussions/4903
-// https://github.com/vercel/pkg/issues/204
+// https://github.com/alixaxel/chrome-aws-lambda
+// https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-on-aws-lambda
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-import puppeteer from "puppeteer";
-import os from "os";
-import download from "download-chromium";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
 import cloudinary from "cloudinary";
 import Vibrant from "node-vibrant";
-const tempDir = os.tmpdir();
 admin.apps.length === 0 &&
   admin.initializeApp({
     // @ts-ignore
@@ -25,19 +23,13 @@ cloudinary.v2.config({
 });
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    let execPath = "";
-    if (process.env.NODE_ENV === "production") {
-      execPath = await download({
-        revision: 694644,
-        installPath: `${tempDir}/.local-chromium`,
-      });
-    }
     // sudo apt-get install libnss3-dev
     const browser = await puppeteer.launch(
-      execPath !== "" && {
-        args: ["--hide-scrollbars", "--disable-web-security"],
-        executablePath: execPath,
-        headless: true,
+      process.env.NODE_ENV === "production" && {
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: chromium.headless,
         ignoreHTTPSErrors: true,
       }
     );
@@ -60,6 +52,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           console.log(err.message);
           res.status(403).send("ERROR");
           return;
+        } finally {
+          if (browser !== null) {
+            await browser.close();
+          }
         }
         const filename = userId.concat(Math.random().toString()) + ".jpg";
         const pathForImage = process.cwd() + "/screenshots";
