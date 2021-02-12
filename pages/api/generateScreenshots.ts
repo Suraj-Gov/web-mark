@@ -3,7 +3,8 @@
 // https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-on-aws-lambda
 import { NextApiRequest, NextApiResponse } from "next";
 import "firebase/firestore";
-import chromium from "chrome-aws-lambda";
+const chrome = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer-core");
 import admin from "firebase-admin";
 import fs from "fs";
 import config from "../../constants/firebaseService";
@@ -23,11 +24,10 @@ cloudinary.v2.config({
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // sudo apt-get install libnss3-dev
-    const browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+    const browser = await puppeteer.launch({
+      args: chrome.args,
+      executablePath: await chrome.executablePath,
+      headless: chrome.headless,
       ignoreHTTPSErrors: true,
     });
     let { pageUrl, userId } = req.body;
