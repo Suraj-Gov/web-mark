@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && shx sudo apt-get install chromium-browser",
+    "build": "next build",
     "start": "next start"
   },
   "dependencies": {
@@ -21,7 +21,6 @@
     "puppeteer-core": "^7.0.4",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "shx": "^0.3.3",
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
