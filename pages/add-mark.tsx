@@ -72,8 +72,8 @@ export default function add_mark() {
           pageTitle: data.pageTitle,
           imageUrl: data.imageURL,
           color: data.color,
+          timestamp: data.timestamp,
         };
-        console.log(newMark);
         try {
           const addedMark = await db.collection("webmarks").add(newMark);
           router.replace("/");
@@ -81,6 +81,7 @@ export default function add_mark() {
           alert(err.message);
         }
       } catch (err) {
+        console.log(err);
         alert("Something went wrong");
       }
     } else {

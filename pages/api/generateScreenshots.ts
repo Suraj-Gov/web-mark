@@ -85,6 +85,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             imageURL,
             color,
             url: pageUrl,
+            timestamp: admin.database.ServerValue.TIMESTAMP,
           };
           res.send(result);
           //delete the image
