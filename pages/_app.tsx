@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import NProgress from "nprogress";
 import Router from "next/router";
 import "firebase/auth";
-import checkLoggedInUser from "../functions/checkLoggedInUser";
+import checkLoggedInUser from "../helperFunctions/checkLoggedInUser";
 
 NProgress.configure({
   minimum: 0.3,
