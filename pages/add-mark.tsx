@@ -61,10 +61,13 @@ export default function add_mark() {
       .get();
     if (existingMark.empty) {
       try {
-        const { data } = await axios.post("/api/generateScreenshots", {
-          pageUrl: properUrl,
-          userId: userContext.uid,
-        });
+        const { data } = await axios.post(
+          "https://web-mark.netlify.app/.netlify/functions/generateScreenshot",
+          {
+            pageUrl: properUrl,
+            userId: userContext.uid,
+          }
+        );
         const newMark = {
           userId: userContext.uid,
           url: data.url,
